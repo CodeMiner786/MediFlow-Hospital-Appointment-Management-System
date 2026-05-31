@@ -49,7 +49,7 @@ public class DoctorEntity : BaseEntity
     public int TotalReviews { get; set; } = 0;
     public int TotalAppointments { get; set; } = 0;
     public Guid DepartmentId { get; set; }
-    public Department Department { get; set; } = null!;
+    public DepartmentEntity Department { get; set; } = null!;
 
     // ৬. নেভিগেশন কালেকশন
     public virtual ICollection<DoctorSchedule> Schedules { get; set; } = [];

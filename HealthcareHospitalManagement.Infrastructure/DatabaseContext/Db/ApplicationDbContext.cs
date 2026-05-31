@@ -62,7 +62,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
     // ── Doctor ───────────────────────────────────────────────────────────────
     public DbSet<DoctorEntity> Doctors { get; set; }
-    public DbSet<Department> Departments { get; set; }
+    public DbSet<DepartmentEntity> Departments { get; set; }
     public DbSet<StaffEntity> Staff { get; set; }
     public DbSet<StaffAttendance> StaffAttendances { get; set; }
     public DbSet<DoctorSchedule> DoctorSchedules { get; set; }

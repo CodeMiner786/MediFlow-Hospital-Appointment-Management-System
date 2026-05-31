@@ -1,6 +1,36 @@
 ﻿using AutoMapper;
-
-
+using HealthcareHospitalManagement.Application.DTOs.Ambulance;
+using HealthcareHospitalManagement.Application.DTOs.Analytics;
+using HealthcareHospitalManagement.Application.DTOs.Appointment;
+using HealthcareHospitalManagement.Application.DTOs.Auth;
+using HealthcareHospitalManagement.Application.DTOs.Billing;
+using HealthcareHospitalManagement.Application.DTOs.Chat;
+using HealthcareHospitalManagement.Application.DTOs.Dashboard;
+using HealthcareHospitalManagement.Application.DTOs.Department;
+using HealthcareHospitalManagement.Application.DTOs.DoctorAvailabilityLog;
+using HealthcareHospitalManagement.Application.DTOs.DoctorDocument;
+using HealthcareHospitalManagement.Application.DTOs.DoctorEarning;
+using HealthcareHospitalManagement.Application.DTOs.DoctorFeedbackSummary;
+using HealthcareHospitalManagement.Application.DTOs.DoctorLeave;
+using HealthcareHospitalManagement.Application.DTOs.DoctorNote;
+using HealthcareHospitalManagement.Application.DTOs.DoctorSchedule;
+using HealthcareHospitalManagement.Application.DTOs.DoctorScheduleSlot;
+using HealthcareHospitalManagement.Application.DTOs.DoctorUnavailability;
+using HealthcareHospitalManagement.Application.DTOs.Emergency;
+using HealthcareHospitalManagement.Application.DTOs.Feed;
+using HealthcareHospitalManagement.Application.DTOs.Feed.Posts;
+using HealthcareHospitalManagement.Application.DTOs.Feedback;
+using HealthcareHospitalManagement.Application.DTOs.HospitalSettings;
+using HealthcareHospitalManagement.Application.DTOs.Identity;
+using HealthcareHospitalManagement.Application.DTOs.Lab;
+using HealthcareHospitalManagement.Application.DTOs.Notification;
+using HealthcareHospitalManagement.Application.DTOs.Patient;
+using HealthcareHospitalManagement.Application.DTOs.Payment;
+using HealthcareHospitalManagement.Application.DTOs.Pharmacy;
+using HealthcareHospitalManagement.Application.DTOs.Staff;
+using HealthcareHospitalManagement.Application.DTOs.Staff.StaffAttendance;
+using HealthcareHospitalManagement.Application.DTOs.Telemedicine;
+using HealthcareHospitalManagement.Application.DTOs.Wards;
 // ── Entities ───────────────────────────────────────────────────────────────────
 using HealthcareHospitalManagement.Domain.Entities.Ambulance;
 using HealthcareHospitalManagement.Domain.Entities.Analytics;
@@ -21,26 +51,7 @@ using HealthcareHospitalManagement.Domain.Entities.Payment;
 using HealthcareHospitalManagement.Domain.Entities.Pharmacy;
 using HealthcareHospitalManagement.Domain.Entities.Telemedicine;
 using HealthcareHospitalManagement.Domain.Entities.Wards;
-using HealthcareHospitalManagement.Application.DTOs.Patient;
-using HealthcareHospitalManagement.Application.DTOs.Appointment;
-using HealthcareHospitalManagement.Application.DTOs.Ambulance;
-using HealthcareHospitalManagement.Application.DTOs.Billing;
-using HealthcareHospitalManagement.Application.DTOs.Dashboard;
-using HealthcareHospitalManagement.Application.DTOs.Doctor;
-using HealthcareHospitalManagement.Application.DTOs.Emergency;
-using HealthcareHospitalManagement.Application.DTOs.Feed;
-using HealthcareHospitalManagement.Application.DTOs.Feedback;
-using HealthcareHospitalManagement.Application.DTOs.Lab;
-using HealthcareHospitalManagement.Application.DTOs.Notification;
-using HealthcareHospitalManagement.Application.DTOs.Payment;
-using HealthcareHospitalManagement.Application.DTOs.Pharmacy;
-using HealthcareHospitalManagement.Application.DTOs.Telemedicine;
-using HealthcareHospitalManagement.Application.DTOs.Wards;
-using HealthcareHospitalManagement.Application.DTOs.Chat;
-using HealthcareHospitalManagement.Application.DTOs.Auth;
-using HealthcareHospitalManagement.Application.DTOs.Identity;
-using HealthcareHospitalManagement.Application.DTOs.Analytics;
-using HealthcareHospitalManagement.Application.DTOs.Feed.Posts;
+
 
 
 namespace HealthcareHospitalManagement.Application.Profiles;
@@ -110,6 +121,26 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.Ignore()); // AppointmentId দিয়ে entity খুঁজে আনা হবে
 
 
+        // Entity → Response DTO
+        CreateMap<Domain.Entities.Doctor.DoctorAvailabilityLog, DoctorAvailabilityLogDto>()
+            .ForMember(dest => dest.DoctorFullName,
+                opt => opt.MapFrom(src =>
+                    src.Doctor != null
+                        ? $"{src.Doctor.FirstName} {src.Doctor.LastName}"
+                        : string.Empty));
+
+        // Create DTO → Entity
+        CreateMap<CreateDoctorAvailabilityLogDto, Domain.Entities.Doctor.DoctorAvailabilityLog>()
+            .ForMember(dest => dest.ChangedAt, opt => opt.MapFrom(_ => DateTime.UtcNow));
+
+        // Update DTO → Entity (null-safe)
+        CreateMap<UpdateDoctorAvailabilityLogDto, Domain.Entities.Doctor.DoctorAvailabilityLog>()
+            .ForMember(dest => dest.ChangedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForAllMembers(opts =>
+                opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
+
 
         // ════════════════════════════════════════════════════════════════
         // BILLING
@@ -131,22 +162,262 @@ public class MappingProfile : Profile
         CreateMap<StartConversationRequestDto, Conversation>();
 
 
+
+        // ════════════════════════════════════════════════════════════════
+        // DEPARTMENT (নতুন যোগ করা)
+        // ════════════════════════════════════════════════════════════════
+        CreateMap<DepartmentEntity, DepartmentDto>();
+        CreateMap<CreateDepartmentDto, DepartmentEntity>();
+        CreateMap<UpdateDepartmentDto, DepartmentEntity>()
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
         // ════════════════════════════════════════════════════════════════
         // DOCTOR
         // ════════════════════════════════════════════════════════════════
-        CreateMap<DoctorEntity, DoctorSummaryResponseDto>();
-        CreateMap<DoctorEntity, DoctorDetailResponseDto>();
-        CreateMap<CreateDoctorRequestDto, DoctorEntity>();
+        //CreateMap<DoctorEntity, DoctorSummaryResponseDto>();
+        //CreateMap<DoctorEntity, DoctorDetailResponseDto>();
+        //CreateMap<CreateDoctorRequestDto, DoctorEntity>();
 
-        // 🔎 UpdateDoctorRequestDto → DoctorEntity mapping
-        CreateMap<UpdateDoctorRequestDto, DoctorEntity>()
+        //// 🔎 UpdateDoctorRequestDto → DoctorEntity mapping
+        //CreateMap<UpdateDoctorRequestDto, DoctorEntity>()
+        //    .ForAllMembers(opts =>
+        //     opts.Condition((src, dest, srcMember) => srcMember != null));
+
+        //CreateMap<Department, DepartmentResponseDto>();
+        //CreateMap<DoctorScheduleRequestDto, DoctorSchedule>();
+        //CreateMap<DoctorScheduleSlot, DoctorScheduleSlotResponseDto>();
+        //CreateMap<DoctorLeaveRequestDto, DoctorLeave>();
+
+
+        // MappingProfile.cs এ এই mappings যোগ করুন (StaffAttendance section)
+        // ════════════════════════════════════════════════════════════════
+        // STAFF ATTENDANCE
+        // ════════════════════════════════════════════════════════════════
+
+        // Entity → DTO
+        CreateMap<Domain.Entities.Doctor.StaffAttendance, StaffAttendanceDto>()
+            .ForMember(dest => dest.StaffFullName,
+                opt => opt.MapFrom(src =>
+                    src.Staff != null ? src.Staff.FullName : string.Empty));
+
+        // Create DTO → Entity
+        CreateMap<CreateStaffAttendanceDto, Domain.Entities.Doctor.StaffAttendance>();
+
+        // Update DTO → Entity (null-safe)
+        CreateMap<UpdateStaffAttendanceDto, Domain.Entities.Doctor.StaffAttendance>()
             .ForAllMembers(opts =>
-             opts.Condition((src, dest, srcMember) => srcMember != null));
+                opts.Condition((src, dest, srcMember) => srcMember != null));
 
-        CreateMap<Department, DepartmentResponseDto>();
-        CreateMap<DoctorScheduleRequestDto, DoctorSchedule>();
-        CreateMap<DoctorScheduleSlot, DoctorScheduleSlotResponseDto>();
-        CreateMap<DoctorLeaveRequestDto, DoctorLeave>();
+
+
+
+        // MappingProfile.cs এ এই mappings যোগ করুন (Staff section)
+        // ════════════════════════════════════════════════════════════════
+        // STAFF
+        // ════════════════════════════════════════════════════════════════
+
+        // Entity → DTO
+        CreateMap<Domain.Entities.Doctor.StaffEntity, StaffDto>()
+            .ForMember(dest => dest.FullName,
+                opt => opt.MapFrom(src => src.FullName))
+            .ForMember(dest => dest.DepartmentName,
+                opt => opt.MapFrom(src =>
+                    src.Department != null ? src.Department.Name : string.Empty));
+
+        // Create DTO → Entity
+        CreateMap<CreateStaffDto, Domain.Entities.Doctor.StaffEntity>();
+
+        // Update DTO → Entity (null-safe)
+        CreateMap<UpdateStaffDto, Domain.Entities.Doctor.StaffEntity>()
+            .ForAllMembers(opts =>
+                opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
+
+
+
+        // ════════════════════════════════════════════════════════════════
+        // HOSPITAL SETTINGS
+        // ════════════════════════════════════════════════════════════════
+
+        // Entity → DTO
+        CreateMap<Domain.Entities.Doctor.HospitalSettings, HospitalSettingsDto>();
+
+        // Create DTO → Entity
+        CreateMap<CreateHospitalSettingsDto, Domain.Entities.Doctor.HospitalSettings>();
+
+        // Update DTO → Entity (null-safe)
+        CreateMap<UpdateHospitalSettingsDto, Domain.Entities.Doctor.HospitalSettings>()
+            .ForAllMembers(opts =>
+                opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
+
+
+        // DOCTOR UNAVAILABILITY
+        // ════════════════════════════════════════════════════════════════
+
+        // Entity → DTO
+        CreateMap<Domain.Entities.Doctor.DoctorUnavailability, DoctorUnavailabilityDto>()
+            .ForMember(dest => dest.DoctorFullName,
+        opt => opt.MapFrom(src =>
+                src.Doctor != null
+                ? $"{src.Doctor.FirstName} {src.Doctor.LastName}"
+                : string.Empty));
+
+        // Create DTO → Entity
+        CreateMap<CreateDoctorUnavailabilityDto, Domain.Entities.Doctor.DoctorUnavailability>();
+
+        // Update DTO → Entity (null-safe)
+        CreateMap<UpdateDoctorUnavailabilityDto, Domain.Entities.Doctor.DoctorUnavailability>()
+            .ForAllMembers(opts =>
+                opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
+
+
+        // Entity → DTO
+        CreateMap<Domain.Entities.Doctor.DoctorScheduleSlot, DoctorScheduleSlotDto>()
+            .ForMember(dest => dest.DoctorFullName,
+                opt => opt.MapFrom(src =>
+                    src.Doctor != null
+                        ? $"{src.Doctor.FirstName} {src.Doctor.LastName}"
+                        : string.Empty));
+
+        // Create DTO → Entity
+        CreateMap<CreateDoctorScheduleSlotDto, Domain.Entities.Doctor.DoctorScheduleSlot>()
+            .ForMember(dest => dest.IsBooked, opt => opt.MapFrom(_ => false))
+            .ForMember(dest => dest.IsBlocked, opt => opt.MapFrom(_ => false));
+
+        // Update DTO → Entity (null-safe)
+        CreateMap<UpdateDoctorScheduleSlotDto, Domain.Entities.Doctor.DoctorScheduleSlot>()
+            .ForAllMembers(opts =>
+                opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
+
+
+        // Entity → DTO
+        CreateMap<Domain.Entities.Doctor.DoctorSchedule, DoctorScheduleDto>()
+            .ForMember(dest => dest.DoctorFullName,
+                opt => opt.MapFrom(src =>
+                    src.Doctor != null
+                        ? $"{src.Doctor.FirstName} {src.Doctor.LastName}"
+                        : string.Empty));
+
+        // Create DTO → Entity
+        CreateMap<CreateDoctorScheduleDto, Domain.Entities.Doctor.DoctorSchedule>();
+
+        // Update DTO → Entity (null-safe)
+        CreateMap<UpdateDoctorScheduleDto, Domain.Entities.Doctor.DoctorSchedule>()
+            .ForAllMembers(opts =>
+                opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
+
+        // Entity → DTO
+        CreateMap<Domain.Entities.Doctor.DoctorNote, DoctorNoteDto>()
+            .ForMember(dest => dest.DoctorFullName,
+                opt => opt.MapFrom(src =>
+                    src.Doctor != null
+                        ? $"{src.Doctor.FirstName} {src.Doctor.LastName}"
+                        : string.Empty))
+            .ForMember(dest => dest.PatientFullName,
+                opt => opt.MapFrom(src =>
+                    src.Patient != null
+                        ? $"{src.Patient.FirstName} {src.Patient.LastName}"
+                        : string.Empty));
+
+        // Create DTO → Entity
+        CreateMap<CreateDoctorNoteDto, Domain.Entities.Doctor.DoctorNote>();
+
+        // Update DTO → Entity (null-safe)
+        CreateMap<UpdateDoctorNoteDto, Domain.Entities.Doctor.DoctorNote>()
+            .ForAllMembers(opts =>
+                opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
+
+        // Entity → DTO
+        CreateMap<Domain.Entities.Doctor.DoctorLeave, DoctorLeaveDto>()
+            .ForMember(dest => dest.DoctorFullName,
+                opt => opt.MapFrom(src =>
+                    src.Doctor != null
+                        ? $"{src.Doctor.FirstName} {src.Doctor.LastName}"
+                        : string.Empty));
+
+        // Create DTO → Entity
+        CreateMap<CreateDoctorLeaveDto, Domain.Entities.Doctor.DoctorLeave>()
+            .ForMember(dest => dest.IsApproved, opt => opt.MapFrom(_ => false));
+
+        // Update DTO → Entity (null-safe)
+        CreateMap<UpdateDoctorLeaveDto, Domain.Entities.Doctor.DoctorLeave>()
+            .ForAllMembers(opts =>
+                opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
+
+        // Entity → DTO
+        CreateMap<Domain.Entities.Doctor.DoctorFeedbackSummary, DoctorFeedbackSummaryDto>()
+            .ForMember(dest => dest.DoctorFullName,
+                opt => opt.MapFrom(src =>
+                    src.Doctor != null
+                        ? $"{src.Doctor.FirstName} {src.Doctor.LastName}"
+                        : string.Empty));
+
+        // Create DTO → Entity
+        CreateMap<CreateDoctorFeedbackSummaryDto, Domain.Entities.Doctor.DoctorFeedbackSummary>()
+            .ForMember(dest => dest.LastUpdatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow));
+
+        // Update DTO → Entity (null-safe)
+        CreateMap<UpdateDoctorFeedbackSummaryDto, Domain.Entities.Doctor.DoctorFeedbackSummary>()
+            .ForMember(dest => dest.LastUpdatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
+            .ForAllMembers(opts =>
+                opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
+
+        // Entity → DTO
+        CreateMap<Domain.Entities.Doctor.DoctorEarning, DoctorEarningDto>()
+            .ForMember(dest => dest.DoctorFullName,
+                opt => opt.MapFrom(src =>
+                    src.Doctor != null
+                        ? $"{src.Doctor.FirstName} {src.Doctor.LastName}"
+                        : string.Empty));
+
+        // Create DTO → Entity
+        CreateMap<CreateDoctorEarningDto, Domain.Entities.Doctor.DoctorEarning>()
+            .ForMember(dest => dest.IsPaid, opt => opt.MapFrom(_ => false))
+            .ForMember(dest => dest.HospitalShareAmount, opt => opt.Ignore()) // handler এ ক্যালকুলেট
+            .ForMember(dest => dest.DoctorShareAmount, opt => opt.Ignore()); // handler এ ক্যালকুলেট
+
+        // Update DTO → Entity (null-safe)
+        CreateMap<UpdateDoctorEarningDto, Domain.Entities.Doctor.DoctorEarning>()
+            .ForAllMembers(opts =>
+                opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
+
+
+        // ── DoctorDocument Mappings ──────────────────────────────────────────────────
+
+        // Entity → Response DTO
+        CreateMap<Domain.Entities.Doctor.DoctorDocument, DoctorDocumentDto>()
+            .ForMember(dest => dest.DoctorFullName,
+                opt => opt.MapFrom(src =>
+                    src.Doctor != null
+                        ? $"{src.Doctor.FirstName} {src.Doctor.LastName}"
+                        : string.Empty));
+
+        // Create DTO → Entity
+        CreateMap<CreateDoctorDocumentDto, Domain.Entities.Doctor.DoctorDocument>();
+
+        // Update DTO → Entity (null-safe — শুধু non-null field update হবে)
+        CreateMap<UpdateDoctorDocumentDto, Domain.Entities.Doctor.DoctorDocument>()
+            .ForAllMembers(opts =>
+                opts.Condition((src, dest, srcMember) => srcMember != null));
+
 
 
         // ════════════════════════════════════════════════════════════════

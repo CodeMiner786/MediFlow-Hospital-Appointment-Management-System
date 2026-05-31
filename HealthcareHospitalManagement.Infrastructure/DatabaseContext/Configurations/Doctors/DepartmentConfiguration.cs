@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HealthcareHospitalManagement.Infrastructure.DatabaseContext.Configurations.Doctors;
 
-public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
+public class DepartmentConfiguration : IEntityTypeConfiguration<DepartmentEntity>
 {
-    public void Configure(EntityTypeBuilder<Department> builder)
+    public void Configure(EntityTypeBuilder<DepartmentEntity> builder)
     {
         // ── ১. টেবিল কনফিগারেশন এবং কমেন্ট ───────────────────────────────────────────────
         builder.ToTable("Departments", "Staff", t => t.HasComment("হসপিটালের বিভিন্ন মেডিকেল ডিপার্টমেন্ট (যেমন: কার্ডিওলজি, ডার্মাটোলজি) এর তালিকা।"));

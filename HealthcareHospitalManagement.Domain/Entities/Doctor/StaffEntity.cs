@@ -32,7 +32,7 @@ public class StaffEntity : BaseEntity
 
     // ── ৪. ডিপার্টমেন্ট এবং এটেনডেন্স রিলেশন ──────────────────────────────────────
     public    Guid              DepartmentId        { get; set; }
-    public    Department        Department          { get; set; } = null!;
+    public    DepartmentEntity        Department          { get; set; } = null!;
 
     public    ICollection<StaffAttendance> Attendances { get; set; } = [];
 }

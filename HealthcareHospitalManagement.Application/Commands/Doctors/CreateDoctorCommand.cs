@@ -1,4 +1,4 @@
-﻿using HealthcareHospitalManagement.Application.DTOs.Doctor;
+﻿using HealthcareHospitalManagement.Application.DTOs.Doctors;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace HealthcareHospitalManagement.Application.Commands.Doctors
 {
-    // ✅ Dto নামে রাখো — consistent থাকবে
-    public record CreateDoctorCommand(CreateDoctorRequestDto Dto) : IRequest<Guid>;
+    public record CreateDoctorCommand(CreateDoctorDto Dto)
+    : IRequest<ApiResponseDto<DoctorDto>>;
+
 }

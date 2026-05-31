@@ -19,13 +19,11 @@ namespace HealthcareHospitalManagement.Infrastructure.Seeder
     {
         public async Task SeedAsync()
         {
-            // ✅ নতুন scope — DbContext এবং IPasswordHasher scoped service
             using var scope = serviceProvider.CreateScope();
 
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
 
-            // ── appsettings.json থেকে credentials পড়া ────────────────
             var email = configuration["AdminSeed:Email"];
             var password = configuration["AdminSeed:Password"];
 
@@ -35,50 +33,40 @@ namespace HealthcareHospitalManagement.Infrastructure.Seeder
                 return;
             }
 
-            // ── আগে থেকে SuperAdmin আছে কিনা চেক ────────────────────
+            // ✅ FIX: শুধু email দিয়ে check — role দিয়ে নয়
             var alreadyExists = await db.ApplicationUsers
-                .AnyAsync(u => u.Email == email && u.Role == UserRole.SuperAdmin);
+                .AnyAsync(u => u.Email == email);
 
             if (alreadyExists)
             {
-                logger.LogInformation("ℹ️ SuperAdmin ইতিমধ্যে বিদ্যমান। Seed skip।");
+                logger.LogInformation("ℹ️ এই email দিয়ে user ইতিমধ্যে আছে। Seed skip।");
                 return;
             }
 
-            // ── নতুন SuperAdmin User তৈরি ────────────────────────────
             var superAdmin = new ApplicationUser
             {
-                // ── Basic Info ────────────────────────────────────────
                 FirstName = configuration["AdminSeed:FirstName"] ?? "Super",
                 LastName = configuration["AdminSeed:LastName"] ?? "Admin",
                 Email = email,
                 NormalizedEmail = email.ToUpperInvariant(),
                 PhoneNumber = configuration["AdminSeed:PhoneNumber"] ?? "01700000000",
 
-                // ── Password ──────────────────────────────────────────
-                // ✅ SHA256 দিয়ে hash — তোমার নিজের IPasswordHasher
                 PasswordHash = passwordHasher.Hash(password),
                 PasswordSalt = null,
 
-                // ── Role & Status ─────────────────────────────────────
-                // ✅ FIX 1: Admin → SuperAdmin — সর্বোচ্চ ক্ষমতার user
                 Role = UserRole.SuperAdmin,
                 AccountStatus = AccountStatus.Active,
 
-                // ── Verification ──────────────────────────────────────
                 IsEmailVerified = true,
                 EmailVerifiedAt = DateTime.UtcNow,
                 IsPhoneVerified = true,
                 PhoneVerifiedAt = DateTime.UtcNow,
 
-                // ── Login Provider ────────────────────────────────────
                 LoginProvider = LoginProvider.Local,
 
-                // ── Tracking ──────────────────────────────────────────
-                CreatedByAdminId = null, // System তৈরি করছে
+                CreatedByAdminId = null,
             };
 
-            // ✅ FIX 2: SuperAdmin (undefined variable) → superAdmin (সঠিক variable)
             await db.ApplicationUsers.AddAsync(superAdmin);
             await db.SaveChangesAsync();
 

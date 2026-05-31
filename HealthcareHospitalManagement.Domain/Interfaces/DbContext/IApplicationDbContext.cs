@@ -45,7 +45,7 @@ public interface IApplicationDbContext
 
     // ── Doctor ────────────────────────────────────────────────────────────
     DbSet<DoctorEntity> Doctors { get; }
-    DbSet<Department> Departments { get; }
+    DbSet<DepartmentEntity> Departments { get; }
     DbSet<StaffEntity> Staff { get; }
     DbSet<StaffAttendance> StaffAttendances { get; }
     DbSet<DoctorSchedule> DoctorSchedules { get; }

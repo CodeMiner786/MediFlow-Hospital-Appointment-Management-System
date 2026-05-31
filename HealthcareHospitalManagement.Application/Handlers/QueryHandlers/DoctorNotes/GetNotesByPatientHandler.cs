@@ -1,0 +1,31 @@
+﻿using AutoMapper;
+using HealthcareHospitalManagement.Application.Common;
+using HealthcareHospitalManagement.Application.DTOs.DoctorNote;
+using HealthcareHospitalManagement.Application.Helpers.Stream;
+using HealthcareHospitalManagement.Application.Queries.DoctorNotes;
+using HealthcareHospitalManagement.Domain.IServiceRegistrar.IUnitOfWork;
+using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace HealthcareHospitalManagement.Application.Handlers.QueryHandlers.DoctorNotes
+{
+    public class GetNotesByPatientHandler(IDoctorUnitOfWork uow, IMapper mapper)
+    : IRequestHandler<GetNotesByPatientQuery, ApiResponseDto<PagedResultDto<DoctorNoteDto>>>
+    {
+        public async Task<ApiResponseDto<PagedResultDto<DoctorNoteDto>>> Handle(
+            GetNotesByPatientQuery request, CancellationToken ct)
+        {
+            var stream = uow.DoctorNotes.GetNotesByPatientStream(request.PatientId, request.IncludePrivate);
+            var all = await StreamHelper.ToList(stream, ct);
+            var paged = StreamHelper.Paginate<Domain.Entities.Doctor.DoctorNote, DoctorNoteDto>(
+                             all, request.PageNumber, request.PageSize, mapper);
+
+            return ApiResponseDto<PagedResultDto<DoctorNoteDto>>.SuccessResponse(paged);
+        }
+    }
+
+}

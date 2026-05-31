@@ -32,7 +32,6 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequestDto>
             .Matches(@"[0-9]").WithMessage("Password must contain at least one digit.")
             .Matches(@"[\W_]").WithMessage("Password must contain at least one special character.");
 
-        RuleFor(x => x.Role)
-            .IsInEnum().WithMessage("Invalid user role.");
+        
     }
 }

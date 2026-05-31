@@ -1,4 +1,5 @@
-﻿using HealthcareHospitalManagement.Domain.Entities.Doctor;
+﻿using HealthcareHospitalManagement.Domain.Common.PagedResponse;
+using HealthcareHospitalManagement.Domain.Entities.Doctor;
 using HealthcareHospitalManagement.Domain.Enums.DoctorDocument;
 using HealthcareHospitalManagement.Domain.Interfaces.Doctor;
 using HealthcareHospitalManagement.Infrastructure.DatabaseContext;
@@ -54,6 +55,21 @@ namespace HealthcareHospitalManagement.Infrastructure.Repositories.Doctor
                 .Where(d => d.ExpiryDate <= thresholdDate && !d.IsDeleted)
                 .AsNoTracking()
                 .AsAsyncEnumerable();
+        }
+
+        // ✅ নতুন: Pagination সহ ডকুমেন্ট আনা
+        public async Task<PagedResponse<DoctorDocument>> GetPagedAsync(int pageNumber, int pageSize, CancellationToken ct = default)
+        {
+            var query = _dbSet.Where(d => !d.IsDeleted).AsNoTracking();
+
+            var totalCount = await query.CountAsync(ct);
+            var items = await query
+                .OrderByDescending(d => d.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(ct);
+
+            return PagedResponse<DoctorDocument>.Create(items, totalCount, pageNumber, pageSize);
         }
     }
 }

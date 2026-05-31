@@ -1,44 +1,73 @@
 ﻿using FluentValidation;
-using Microsoft.Extensions.DependencyInjection;
-
-using HealthcareHospitalManagement.Application.DTOs.Patient;
-using HealthcareHospitalManagement.Application.DTOs.Doctor;
+using HealthcareHospitalManagement.Application.DTOs.Ambulance;
+using HealthcareHospitalManagement.Application.DTOs.Analytics;
+using HealthcareHospitalManagement.Application.DTOs.Appointment;
+using HealthcareHospitalManagement.Application.DTOs.Auth;
+using HealthcareHospitalManagement.Application.DTOs.Billing;
+using HealthcareHospitalManagement.Application.DTOs.Chat;
+using HealthcareHospitalManagement.Application.DTOs.Department;
+using HealthcareHospitalManagement.Application.DTOs.DoctorAvailabilityLog;
+using HealthcareHospitalManagement.Application.DTOs.DoctorDocument;
+using HealthcareHospitalManagement.Application.DTOs.DoctorEarning;
+using HealthcareHospitalManagement.Application.DTOs.DoctorFeedbackSummary;
+using HealthcareHospitalManagement.Application.DTOs.DoctorLeave;
+using HealthcareHospitalManagement.Application.DTOs.DoctorNote;
+using HealthcareHospitalManagement.Application.DTOs.DoctorNotification;
+using HealthcareHospitalManagement.Application.DTOs.DoctorPerformanceReport;
+using HealthcareHospitalManagement.Application.DTOs.Doctors;
+using HealthcareHospitalManagement.Application.DTOs.DoctorSchedule;
+using HealthcareHospitalManagement.Application.DTOs.DoctorScheduleSlot;
+using HealthcareHospitalManagement.Application.DTOs.DoctorUnavailability;
 using HealthcareHospitalManagement.Application.DTOs.Emergency;
 using HealthcareHospitalManagement.Application.DTOs.Feed;
+using HealthcareHospitalManagement.Application.DTOs.Feed.Posts;
 using HealthcareHospitalManagement.Application.DTOs.Feedback;
+using HealthcareHospitalManagement.Application.DTOs.HospitalSettings;
+using HealthcareHospitalManagement.Application.DTOs.Identity;
 using HealthcareHospitalManagement.Application.DTOs.Lab;
 using HealthcareHospitalManagement.Application.DTOs.Notification;
+using HealthcareHospitalManagement.Application.DTOs.Patient;
 using HealthcareHospitalManagement.Application.DTOs.Payment;
 using HealthcareHospitalManagement.Application.DTOs.Pharmacy;
+using HealthcareHospitalManagement.Application.DTOs.Staff;
+using HealthcareHospitalManagement.Application.DTOs.Staff.StaffAttendance;
 using HealthcareHospitalManagement.Application.DTOs.Telemedicine;
+using HealthcareHospitalManagement.Application.DTOs.Wards;
 using HealthcareHospitalManagement.Application.Validators.Ambulance;
 using HealthcareHospitalManagement.Application.Validators.Analytics;
 using HealthcareHospitalManagement.Application.Validators.Appointment;
 using HealthcareHospitalManagement.Application.Validators.Auth;
 using HealthcareHospitalManagement.Application.Validators.Billing;
 using HealthcareHospitalManagement.Application.Validators.Chat;
-using HealthcareHospitalManagement.Application.Validators.Doctor;
+using HealthcareHospitalManagement.Application.Validators.Departments;
+using HealthcareHospitalManagement.Application.Validators.DoctorAvailabilityLog;
+using HealthcareHospitalManagement.Application.Validators.DoctorDocument;
+using HealthcareHospitalManagement.Application.Validators.DoctorEarning;
+using HealthcareHospitalManagement.Application.Validators.DoctorFeedbackSummary;
+using HealthcareHospitalManagement.Application.Validators.DoctorLeave;
+using HealthcareHospitalManagement.Application.Validators.DoctorNote;
+using HealthcareHospitalManagement.Application.Validators.DoctorNotification;
+using HealthcareHospitalManagement.Application.Validators.DoctorPerformanceReport;
+using HealthcareHospitalManagement.Application.Validators.Doctors;
+using HealthcareHospitalManagement.Application.Validators.DoctorSchedule;
+using HealthcareHospitalManagement.Application.Validators.DoctorScheduleSlot;
+using HealthcareHospitalManagement.Application.Validators.DoctorUnavailability;
 using HealthcareHospitalManagement.Application.Validators.Emergency;
 using HealthcareHospitalManagement.Application.Validators.Feed;
+using HealthcareHospitalManagement.Application.Validators.Feed.Posts;
 using HealthcareHospitalManagement.Application.Validators.Feedback;
+using HealthcareHospitalManagement.Application.Validators.HospitalSettings;
 using HealthcareHospitalManagement.Application.Validators.Identity;
 using HealthcareHospitalManagement.Application.Validators.Lab;
 using HealthcareHospitalManagement.Application.Validators.Notification;
 using HealthcareHospitalManagement.Application.Validators.Patient;
 using HealthcareHospitalManagement.Application.Validators.Payment;
 using HealthcareHospitalManagement.Application.Validators.Pharmacy;
+using HealthcareHospitalManagement.Application.Validators.Staff;
+using HealthcareHospitalManagement.Application.Validators.StaffAttendance;
 using HealthcareHospitalManagement.Application.Validators.Telemedicine;
 using HealthcareHospitalManagement.Application.Validators.Wards;
-using HealthcareHospitalManagement.Application.DTOs.Wards;
-using HealthcareHospitalManagement.Application.DTOs.Identity;
-using HealthcareHospitalManagement.Application.DTOs.Chat;
-using HealthcareHospitalManagement.Application.DTOs.Billing;
-using HealthcareHospitalManagement.Application.DTOs.Auth;
-using HealthcareHospitalManagement.Application.DTOs.Appointment;
-using HealthcareHospitalManagement.Application.DTOs.Ambulance;
-using HealthcareHospitalManagement.Application.DTOs.Analytics;
-using HealthcareHospitalManagement.Application.DTOs.Feed.Posts;
-using HealthcareHospitalManagement.Application.Validators.Feed.Posts;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HealthcareHospitalManagement.Application.Helpers.ValidationsService;
 
@@ -80,11 +109,72 @@ public static class ValidatorExtensions
         services.AddTransient<IValidator<StartConversationRequestDto>, StartConversationRequestValidator>();
 
         // ── Doctor ────────────────────────────────────────────────────────────
-        services.AddTransient<IValidator<CreateDoctorRequestDto>, CreateDoctorRequestValidator>();
-        services.AddTransient<IValidator<DoctorLeaveRequestDto>, DoctorLeaveRequestValidator>();
-        services.AddTransient<IValidator<DoctorScheduleRequestDto>, DoctorScheduleRequestValidator>();
-        services.AddTransient<IValidator<DoctorSearchRequestDto>, DoctorSearchRequestValidator>();
-        services.AddTransient<IValidator<UpdateDoctorRequestDto>, UpdateDoctorRequestValidator>();
+        // Doctor
+        services.AddTransient<IValidator<CreateDoctorDto>, CreateDoctorValidator>();
+        services.AddTransient<IValidator<UpdateDoctorDto>, UpdateDoctorValidator>();
+
+        // Department
+        services.AddTransient<IValidator<CreateDepartmentDto>, CreateDepartmentValidator>();
+        services.AddTransient<IValidator<UpdateDepartmentDto>, UpdateDepartmentValidator>();
+
+        // DoctorAvailabilityLog
+        services.AddTransient<IValidator<CreateDoctorAvailabilityLogDto>, CreateDoctorAvailabilityLogValidator>();
+        services.AddTransient<IValidator<UpdateDoctorAvailabilityLogDto>, UpdateDoctorAvailabilityLogValidator>();
+
+        // DoctorDocument
+        services.AddTransient<IValidator<CreateDoctorDocumentDto>, CreateDoctorDocumentValidator>();
+        services.AddTransient<IValidator<UpdateDoctorDocumentDto>, UpdateDoctorDocumentValidator>();
+        services.AddTransient<IValidator<VerifyDoctorDocumentDto>, VerifyDoctorDocumentValidator>();
+
+        // DoctorEarning
+        services.AddTransient<IValidator<CreateDoctorEarningDto>, CreateDoctorEarningValidator>();
+        services.AddTransient<IValidator<UpdateDoctorEarningDto>, UpdateDoctorEarningValidator>();
+        services.AddTransient<IValidator<MarkEarningPaidDto>, MarkEarningPaidValidator>();
+
+        // DoctorFeedbackSummary
+        services.AddTransient<IValidator<CreateDoctorFeedbackSummaryDto>, CreateDoctorFeedbackSummaryValidator>();
+        services.AddTransient<IValidator<UpdateDoctorFeedbackSummaryDto>, UpdateDoctorFeedbackSummaryValidator>();
+
+        // DoctorLeave
+        services.AddTransient<IValidator<CreateDoctorLeaveDto>, CreateDoctorLeaveValidator>();
+        services.AddTransient<IValidator<UpdateDoctorLeaveDto>, UpdateDoctorLeaveValidator>();
+        services.AddTransient<IValidator<ApproveDoctorLeaveDto>, ApproveDoctorLeaveValidator>();
+
+        // DoctorNote
+        services.AddTransient<IValidator<CreateDoctorNoteDto>, CreateDoctorNoteValidator>();
+        services.AddTransient<IValidator<UpdateDoctorNoteDto>, UpdateDoctorNoteValidator>();
+
+        // DoctorNotification
+        services.AddTransient<IValidator<CreateDoctorNotificationDto>, CreateDoctorNotificationValidator>();
+        services.AddTransient<IValidator<UpdateDoctorNotificationDto>, UpdateDoctorNotificationValidator>();
+
+        // DoctorPerformanceReport
+        services.AddTransient<IValidator<CreateDoctorPerformanceReportDto>, CreateDoctorPerformanceReportValidator>();
+        services.AddTransient<IValidator<UpdateDoctorPerformanceReportDto>, UpdateDoctorPerformanceReportValidator>();
+
+        // DoctorSchedule
+        services.AddTransient<IValidator<CreateDoctorScheduleDto>, CreateDoctorScheduleValidator>();
+        services.AddTransient<IValidator<UpdateDoctorScheduleDto>, UpdateDoctorScheduleValidator>();
+
+        // DoctorScheduleSlot
+        services.AddTransient<IValidator<CreateDoctorScheduleSlotDto>, CreateDoctorScheduleSlotValidator>();
+        services.AddTransient<IValidator<UpdateDoctorScheduleSlotDto>, UpdateDoctorScheduleSlotValidator>();
+
+        // DoctorUnavailability
+        services.AddTransient<IValidator<CreateDoctorUnavailabilityDto>, CreateDoctorUnavailabilityValidator>();
+        services.AddTransient<IValidator<UpdateDoctorUnavailabilityDto>, UpdateDoctorUnavailabilityValidator>();
+
+        // HospitalSettings
+        services.AddTransient<IValidator<CreateHospitalSettingsDto>, CreateHospitalSettingsValidator>();
+        services.AddTransient<IValidator<UpdateHospitalSettingsDto>, UpdateHospitalSettingsValidator>();
+
+        // Staff
+        services.AddTransient<IValidator<CreateStaffDto>, CreateStaffValidator>();
+        services.AddTransient<IValidator<UpdateStaffDto>, UpdateStaffValidator>();
+
+        // StaffAttendance
+        services.AddTransient<IValidator<CreateStaffAttendanceDto>, CreateStaffAttendanceValidator>();
+        services.AddTransient<IValidator<UpdateStaffAttendanceDto>, UpdateStaffAttendanceValidator>();
 
         // ── Emergency ─────────────────────────────────────────────────────────
         services.AddTransient<IValidator<CreateEmergencyVisitRequestDto>, CreateEmergencyVisitRequestValidator>();

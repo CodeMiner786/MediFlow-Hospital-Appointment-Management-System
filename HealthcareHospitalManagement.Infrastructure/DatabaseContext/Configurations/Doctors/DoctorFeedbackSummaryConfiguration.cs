@@ -27,14 +27,6 @@ public class DoctorFeedbackSummaryConfiguration : IEntityTypeConfiguration<Docto
         // ✅ FIX 4: AverageRating এ precision নির্ধারণ (যেমন: 4.95 → precision 3, scale 2)
         builder.Property(s => s.AverageRating).HasPrecision(3, 2);
 
-        // ── ৩. JSON Conversion এবং Value Comparer ────────────────────────────────────────
-        // ✅ FIX 2 (Value Comparer সমাধান):
-        // Dictionary<RatingStar, int> হলো একটি reference type collection।
-        // EF Core এর change tracker এর পক্ষে এর ভেতরের পরিবর্তন সনাক্ত করা সম্ভব নয়।
-        // তাই ValueComparer দিতে হবে যা EF Core-কে বলে দেয়:
-        //   ১. দুটো Dictionary সমান কিনা কীভাবে বুঝবে (Equals)
-        //   ২. hash code কীভাবে তৈরি হবে (GetHashCode)
-        //   ৩. snapshot/clone কীভাবে নেবে (Snapshot)
 
         var ratingCountsComparer = new ValueComparer<Dictionary<RatingStar, int>>(
             // Equals: JSON string compare করে দুটো dictionary তুলনা
